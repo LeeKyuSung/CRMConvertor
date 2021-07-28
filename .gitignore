@@ -23,3 +23,7 @@ hs_err_pid*
 
 # for mdb_sqlite project #
 *.mdb
+results/customers
+results/*
+
+/bin/
