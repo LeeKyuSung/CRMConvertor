@@ -1,9 +1,15 @@
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
+
+import com.healthmarketscience.jackcess.Database;
+import com.healthmarketscience.jackcess.DatabaseBuilder;
+import com.healthmarketscience.jackcess.Row;
+import com.healthmarketscience.jackcess.Table;
 
 import pojo.Customer;
 
@@ -21,7 +27,8 @@ public class Test {
 
 		customers = new HashSet<>();
 		getMDB1();
-		System.out.println(111111);
+		System.out.println(customers.size());
+		System.out.println("end getMDB1");
 		getMDB2();
 	}
 
@@ -67,56 +74,47 @@ public class Test {
 
 	}
 
-	public static void getMDB2() {
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rs = null;
+	public static void getMDB2() throws Exception {
 		String location = "mdb/IDOrder.mdb";
-		location = "mdb/IDOrder.mdb";
-		String url = "jdbc:ucanaccess://" + location;
 
 		int cnt1 = 0;
 		int cnt2 = 0;
+		int cnt3 = 0;
 
 		try {
-			System.out.println(1);
-			conn = DriverManager.getConnection(url);
-			System.out.println(2);
-			stmt = conn.createStatement();
-			System.out.println(3);
+			Database db = DatabaseBuilder.open(new File(location));
 
 			for (Customer customer : customers) {
 				String id = customer.getId();
-				System.out.println(id + " 111111111111111");
+				System.out.println("id : [" + id + "] cnt : " + (cnt1+cnt2+cnt3));
+
 				if (id.equals("")) {
 					cnt1++;
 					System.out.println("continue");
 					continue;
 				}
 
-				String query = "SELECT * FROM " + id;
-
-				rs = stmt.executeQuery(query);
-				System.out.println(query);
-				while (rs.next()) {
-					String ORDERDAY = rs.getString("ORDERDAY");
-					String ORDERTIME = rs.getString("ORDERTIME");
-					String ORDERTIME2 = rs.getString("ORDERTIME2");
-					String MENUITEM = rs.getString("MENUITEM");
-					String PRICE = rs.getString("PRICE");
-					String SAWON = rs.getString("SAWON");
+				Table table = db.getTable(id);
+				if (table==null) {
 					cnt2++;
-					System.out.println(
-							ORDERDAY + " " + ORDERTIME + " " + ORDERTIME2 + " " + MENUITEM + " " + PRICE + " " + SAWON);
+					System.out.println("not exist id at IDOrder");
+					continue;
 				}
+				for (Row row : table) {
+					String ORDERDAY = row.get("ORDERDAY").toString();
+					String ORDERTIME = row.get("ORDERTIME").toString();
+					String ORDERTIME2 = row.get("ORDERTIME2").toString();
+					String MENUITEM = row.get("MENUITEM").toString();
+					String PRICE = row.get("PRICE").toString();
+					String SAWON = row.get("SAWON").toString();
+					//System.out.println(ORDERDAY + " " + ORDERTIME + " " + ORDERTIME2 + " " + MENUITEM + " " + PRICE + " " + SAWON);
+				}
+				cnt3++;
 			}
-			rs.close();
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		System.out.println(cnt1 + " " + cnt2);
+		System.out.println(cnt1 + " " + cnt2 + " " + cnt3 + " " + (cnt1+cnt2+cnt3));
 	}
 }
