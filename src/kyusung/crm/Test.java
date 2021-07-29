@@ -1,3 +1,5 @@
+package kyusung.crm;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +13,7 @@ import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
-import pojo.Customer;
+import kyusung.crm.pojo.Customer;
 
 public class Test {
 	static HashSet<Customer> customers;

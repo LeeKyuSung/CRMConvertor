@@ -1,3 +1,5 @@
+package kyusung.crm;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -14,8 +16,8 @@ import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
-import pojo.Customer;
-import pojo.Order;
+import kyusung.crm.pojo.Customer;
+import kyusung.crm.pojo.Order;
 
 public class Convert {
 	public static void main(String[] args) throws Exception {
@@ -66,13 +68,11 @@ public class Convert {
 		customers.add(customer);
 
 		// save customers data
-		File file = new File("results/customers");
+		File file = new File("res/raw/customers");
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-			writer.append("{");
 			for (Customer cust : customers) {
-				writer.append(cust.getJsonStr());
+				writer.append(cust.getString());
 			}
-			writer.append("}");
 		}
 	}
 
@@ -119,13 +119,11 @@ public class Convert {
 				}
 				
 				// file write 시작
-				File file = new File("results/" + id);
+				File file = new File("res/raw/user" + id);
 				try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-					writer.append("[");
 					for (Order order : orderList) {
-						writer.append(order.getJsonStr());
+						writer.append(order.getString());
 					}
-					writer.append("]");
 				}
 				
 				cnt3++;
