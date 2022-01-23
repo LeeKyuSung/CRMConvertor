@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 
 import com.healthmarketscience.jackcess.Database;
@@ -62,11 +63,6 @@ public class Convert {
 			e.printStackTrace();
 		}
 
-		// for test add kyusung
-		Customer customer = new Customer("55555", "01091019320", "", "이천쌀유통", "인천광역시 부평구 부평2동 760-836 동수북로90번길 17",
-				"주소2");
-		customers.add(customer);
-
 		// save customers data
 		File file = new File("res/raw/customers");
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
@@ -83,6 +79,8 @@ public class Convert {
 		int cnt2 = 0;
 		int cnt3 = 0;
 
+		Date maxDate = null;
+
 		try {
 			Database db = DatabaseBuilder.open(new File(location));
 
@@ -97,7 +95,7 @@ public class Convert {
 				}
 
 				ArrayList<Order> orderList = new ArrayList<>();
-				
+
 				Table table = db.getTable(id);
 				if (table == null) {
 					cnt2++;
@@ -106,18 +104,26 @@ public class Convert {
 					continue;
 				}
 				for (Row row : table) {
-					String year = strWrap(row.getDate("ORDERDAY").getYear()+1900 +"");
-					String month = strWrap(row.getDate("ORDERDAY").getMonth()+1 + "");
-					String day = strWrap(row.getDate("ORDERDAY").getDate() + "");
-					
+					// 최대 날짜 계산
+					Date date = row.getDate("ORDERDAY");
+					if (null == maxDate) {
+						maxDate = date;
+					} else if (date.after(maxDate)) {
+						maxDate = date;
+					}
+
+					String year = strWrap(date.getYear() + 1900 + "");
+					String month = strWrap(date.getMonth() + 1 + "");
+					String day = strWrap(date.getDate() + "");
+
 					String menu = strWrap(row.get("MENUITEM").toString());
 					String price = strWrap(row.get("PRICE").toString());
 					String sawon = strWrap(row.get("SAWON").toString());
-					
-					Order order = new Order(year+"/"+month+"/"+day, menu, price, sawon);
+
+					Order order = new Order(year + "/" + month + "/" + day, menu, price, sawon);
 					orderList.add(order);
 				}
-				
+
 				// file write 시작
 				File file = new File("res/raw/user" + id);
 				try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
@@ -125,7 +131,7 @@ public class Convert {
 						writer.append(order.getString());
 					}
 				}
-				
+
 				cnt3++;
 			}
 		} catch (Exception e) {
@@ -133,6 +139,8 @@ public class Convert {
 		}
 
 		System.out.println("getOrder finished");
+		System.out.println("last date : " + (maxDate.getYear() + 1900) + " " + (maxDate.getMonth() + 1) + " "
+				+ (maxDate.getDate()));
 		System.out.println("blank id cnt : " + cnt1);
 		System.out.println("no orders at IDOrder.mdb cnt : " + cnt2);
 		System.out.println("success : " + cnt3);
